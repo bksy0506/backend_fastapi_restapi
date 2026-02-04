@@ -1,10 +1,13 @@
+import strawberry
 from typing import List, Optional
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from strawberry.fastapi import GraphQLRouter
 
 
-class Emp(BaseModel):
+@strawberry.type
+class Emp:
     id: str
     name: str
     age: int
@@ -12,7 +15,8 @@ class Emp(BaseModel):
     language: str
     pay: int
 
-class EmpInput(BaseModel):
+@strawberry.input
+class EmpInput:
     name: str
     age: int
     job: str
@@ -25,6 +29,48 @@ Employees : List[Emp] = [
     Emp(id="3", name="Sue",   age=38, job="publisher", language="javascript", pay=400),
     Emp(id="4", name="Susan", age=45, job="pm",        language="python",     pay=500),
 ]
+
+
+@strawberry.type
+class Query:
+
+    @strawberry.field
+    def employees(self) -> List[Emp]:
+        return Employees
+
+@strawberry.type
+class Mutation:
+
+    @strawberry.mutation
+    def createEmployee(self, input: EmpInput) -> Emp:
+        global Employees
+        new_emp = Emp(
+            id = str(max(int(item.id) for item in Employees) + 1) if Employees else "1",
+            name = input.name,
+            age = int(input.age),
+            job = input.job,
+            language = input.language,
+            pay = int(input.pay),
+        )
+        Employees = [*Employees, new_emp]
+        return new_emp
+
+    @strawberry.mutation
+    def updateEmployee(self, id: strawberry.ID,  input: EmpInput) -> Emp:
+        global Employees
+        new_emp = next((item for item in Employees if item.id==id), None)
+        new_emp.name = input.name
+        new_emp.age = int(input.age)
+        new_emp.job = input.job
+        new_emp.language = input.language
+        new_emp.pay = int(input.pay)
+        return new_emp
+
+    @strawberry.mutation
+    def deleteEmployee(self, id: strawberry.ID) -> strawberry.ID:
+        global Employees
+        Employees = [ item for item in Employees if item.id!=id ]
+        return id
 
 app = FastAPI(title="emp restapi")
 
@@ -41,43 +87,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/emp", response_model=List[Emp])
-def get_employees():
-    return Employees
 
-@app.post("/emp", response_model=Emp, status_code=200)
-def create_employee(input: EmpInput):
-    global Employees
-    new_emp = Emp(
-        id = str(max([int(item.id) for item in Employees]) + 1) if Employees else "1",
-        name = input.name,
-        age = input.age,
-        job = input.job,
-        language = input.language,
-        pay = input.pay,
-    )
-    Employees.append(new_emp)
-    return new_emp
+schema = strawberry.Schema(query=Query, mutation=Mutation)
+graphql_app = GraphQLRouter(schema=schema)
+app.include_router(graphql_app, prefix="/graphql")
 
-@app.put("/emp/{emp_id}", response_model=EmpInput, status_code=200)
-def update_employee(emp_id: str, input: EmpInput):
-    global Employees
-    Employees = [
-        Emp( id= emp_id,
-             name= input.name,
-             age= input.age,
-             job= input.job,
-             language = input.language,
-             pay =  input.pay
-    ) if item.id == emp_id else item for item in Employees
-    ]
-
-    return input
-
-@app.delete("/emp/{emp_id}")
-def delete_employee(emp_id: str):
-    global Employees
-    Employees = [ item for item in Employees if item.id != emp_id]
-    return emp_id
 
 
