@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "emp",
     "corsheaders",
     "rest_framework",
+    "django_extensions",
 ]
 
 

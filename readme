@@ -1,8 +1,18 @@
+라이브러리 받기
 pip install -r requirements.txt
 
+설정파일 만들기
 django-admin startproject config .
+
+앱만들기
 python manage.py startapp emp
+
+실행하기
 python manage.py runserver
 
+데베넣기
 python manage.py makemigrations
 python manage.py migrate
+
+api부분endpoint
+python manage.py show_urls

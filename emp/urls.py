@@ -1,9 +1,7 @@
-from django.contrib import admin
-from django.urls import path
-from . import views
+from rest_framework.routers import DefaultRouter
+from .views import EmployeeViewSet
 
+router = DefaultRouter()
+router.register(r"emp", EmployeeViewSet)
 
-urlpatterns = [
-    path("emp/",views.EmployeeListCreateAPIView.as_view() ),
-    path("emp/<int:id>/",views.EmployeeUpdateDeleteAPIView.as_view() ),
-]
+urlpatterns = router.urls
