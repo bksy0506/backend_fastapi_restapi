@@ -16,3 +16,9 @@ python manage.py migrate
 
 api부분endpoint
 python manage.py show_urls
+
+관리자 생성
+python manage.py createsuperuser
+
+관리자페이지
+ http://127.0.0.1:8000/admin
