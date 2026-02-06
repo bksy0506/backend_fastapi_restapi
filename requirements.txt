@@ -1,0 +1,6 @@
+django
+strawberry-graphql
+python-dotenv
+psycopg2-binary
+django-cors-headers
+strawberry-graphql-django

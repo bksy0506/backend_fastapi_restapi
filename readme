@@ -1,0 +1,6 @@
+pip install -r requirements.txt
+
+emp이름 폴더만들어짐 >뷰삭제 쿼리만 뭐테이션만사용함
+python manage.py startapp emp
+
+python manage.py runserver
