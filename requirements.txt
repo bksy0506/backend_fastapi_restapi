@@ -1,0 +1,10 @@
+pandas
+matplotlib
+seaborn
+openpyxl
+duckdb
+duckdb-engine
+sqlalchemy
+psycopg2-binary
+pymongo
+redis
